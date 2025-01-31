@@ -71,7 +71,7 @@ void DrawGameBoard() {
 
     float board_length = BLOCK_SIZE * GRID_NUM + BLOCK_SPACING * (GRID_NUM + 1);
 
-    glColor3f(0.396f, 0.263f, 0.129f); // Dark brown color
+    glColor3f(0.4f, 0.25f, 0.13f); // Dark brown color
     glBegin(GL_QUADS);
     glVertex2f(BOARD_CENTER_X - board_length / 2, BOARD_CENTER_Y - board_length / 2);
     glVertex2f(BOARD_CENTER_X + board_length / 2, BOARD_CENTER_Y - board_length / 2);
@@ -106,23 +106,35 @@ void DrawGridCell(int grid[GRID_NUM][GRID_NUM]) {
         for(int j = 0; j < GRID_NUM; j++) {
             int grid_number = grid[i][j];
             float r, g, b; // Color variables
-
-            // Set color based on grid_number % 9
-            int color_index = grid_number % 9;
-
-            if (color_index >= 0 && color_index <= 2) { // 0, 1, 2 -> White
-                r = 1.0f; g = 1.0f; b = 1.0f; // White
-                r -= 0.05* color_index;
-                g -= 0.05* color_index;
-                b -= 0.05* color_index;
-            } else if (color_index >= 3 && color_index <= 5) { // 3, 4, 5 -> Orange
-                r = 1.0f; g = 0.5f; b = 0.0f; // Orange
-
-            } else { // 6, 7, 8 -> Yellow
-                r = 1.0f; g = 1.0f; b = 0.0f; // Yellow
-            }
+            float text_r, text_g, text_b;
 
             if (grid_number != 0) { // Only draw non-zero numbers
+
+                // Set color based on grid_number % 9
+                int color_index = grid_number % 9;
+
+                if (color_index >= 0 && color_index <= 2) { // 0, 1, 2 -> White
+                    r = 1.0f; g = 1.0f; b = 1.0f; // White
+                    text_r = 0.0f; text_g = 0.0f; text_b = 0.0f; // Black
+
+                    r -= 0.05* color_index;
+                    g -= 0.05* color_index;
+                    b -= 0.05* color_index;
+                } else if (color_index >= 3 && color_index <= 5) { // 3, 4, 5 -> Orange
+                    r = 1.0f; g = 0.5f; b = 0.0f; // Orange
+                    text_r = 0.9f; text_g = 0.9f; text_b = 0.9f; // White
+
+                    r -= 0.05* color_index;
+                    g -= 0.05* color_index;
+
+                } else { // 6, 7, 8 -> Yellow
+                    r = 1.0f; g = 1.0f; b = 0.0f; // Yellow
+                    text_r = 0.9f; text_g = 0.9f; text_b = 0.9f; // White
+
+                    r -= 0.05* color_index;
+                    g -= 0.05* color_index;
+                }
+
                 float x = (j-GRID_NUM/2 +0.5) * (BLOCK_SIZE + BLOCK_SPACING) + BOARD_CENTER_X;
                 float y = (i-GRID_NUM/2 +0.5) * (BLOCK_SIZE + BLOCK_SPACING) + BOARD_CENTER_Y;
 
@@ -139,7 +151,7 @@ void DrawGridCell(int grid[GRID_NUM][GRID_NUM]) {
                 int grid_number_final = pow(2, grid_number);
                 
                 std::string number_text = std::to_string(grid_number_final); // Convert number to string
-                RenderText(x, y, number_text, 0.5, 0.5, 0.5); // Draw the number with the corresponding color
+                RenderText(x, y, number_text, text_r, text_g, text_b); // Draw the number with the corresponding color
             }
         }
     }
@@ -161,8 +173,8 @@ void DrawScore(int score) {
 void DrawGameOver() {
     glColor3f(0.0f, 0.0f, 0.0f); // Black color
 
-    std::string game_over_text = "Game Over";
-    RenderText(0.0f, 0.70f, game_over_text, 0.0f, 0.0f, 0.0f); // Position the text at the top-left corner
+    std::string game_over_text = "Game Over. Press Enter to Restart.";
+    RenderText(0.0f, 0.90f, game_over_text, 0.0f, 0.0f, 0.0f); // Position the text at the top-left corner
 }
 
 // Function to handle key input
@@ -172,26 +184,21 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
         switch (key) {
             case GLFW_KEY_UP:
                 // Handle up arrow key
-                std::cout << "Up key pressed" << std::endl;
                 input_direction_ = Direction::UP;
                 break;
             case GLFW_KEY_DOWN:
                 // Handle down arrow key
-                std::cout << "Down key pressed" << std::endl;
                 input_direction_ = Direction::DOWN;
                 break;
             case GLFW_KEY_LEFT:
                 // Handle left arrow key
-                std::cout << "Left key pressed" << std::endl;
                 input_direction_ = Direction::LEFT;
                 break;
             case GLFW_KEY_RIGHT:
                 // Handle right arrow key
-                std::cout << "Right key pressed" << std::endl;
                 input_direction_ = Direction::RIGHT;
                 break;
             case GLFW_KEY_ENTER: // Handle enter key
-                std::cout << "Enter key pressed" << std::endl;
                 press_enter_ = true;
                 break;
             default:
