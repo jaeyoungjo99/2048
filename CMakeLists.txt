@@ -46,6 +46,7 @@ include_directories(
 # 실행 파일 설정
 add_executable(game_2048_node 
               src/main.cpp 
+              src/window.cpp
               src/game_manager.cpp)
 
 # 라이브러리 링크
