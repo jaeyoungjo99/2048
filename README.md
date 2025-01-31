@@ -21,9 +21,15 @@ $ git clone https://github.com/jaeyoungjo99/2048.git
 
 # Build the package
 ```bash
-$ cd ~/catkin_ws
-$ catkin_make
+mkdir build
+cd build
+cmake .. -G "MinGW Makefiles"
+mingw32-make
+
 ```
+
+# 정적 빌드 확인
+ldd game_2048.exe
 
 # Run the package
 ```bash
