@@ -11,8 +11,6 @@ find_package(catkin REQUIRED COMPONENTS
 
 # OpenGL, GLFW, GLEW 관련 설정
 find_package(OpenGL REQUIRED)
-find_package(TBB REQUIRED) 
-find_package(Eigen3 REQUIRED)
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(GLFW REQUIRED glfw3)
 find_package(GLEW REQUIRED)
@@ -25,10 +23,6 @@ endif()
 
 catkin_package(
     INCLUDE_DIRS include
-#  INCLUDE_DIRS include
-#  LIBRARIES trajectory
-#  CATKIN_DEPENDS roscpp rospy std_msgs
-#  DEPENDS system_lib
 )
 
 
@@ -39,7 +33,6 @@ include_directories(
   ${OPENGL_INCLUDE_DIRS}
   ${GLFW_INCLUDE_DIRS}
   ${GLEW_INCLUDE_DIRS}
-  ${EIGEN3_INCLUDE_DIR}
   ${GLUT_INCLUDE_DIRS}
 )
 
@@ -56,5 +49,4 @@ target_link_libraries(game_2048_node
   ${GLFW_LIBRARIES}
   ${GLEW_LIBRARIES}
   ${GLUT_LIBRARIES} # Add GLUT libraries
-  TBB::tbb
 )
