@@ -4,6 +4,7 @@
 void GameManager::InitializeGame() {
     std::cout << "[GameManager] 2048 Initialize!" << std::endl;
 
+    is_game_over_ = false;
     // Initialize the grid with 0
     for(int i = 0; i < GRID_NUM; i++) {
         for(int j = 0; j < GRID_NUM; j++) {
@@ -43,251 +44,130 @@ void GameManager::RandomGenerate() {
 }
 
 void GameManager::UpdateGame(Direction direction) {
-    std::cout << "[GameManager] 2048 Update!" << std::endl;
 
-    // Move the grid    
-    switch(direction) {
-        case UP:
-            MoveUp();
-            break;
-        case DOWN:
-            MoveDown();
-            break;
-        case LEFT:
-            MoveLeft();
-            break;
-        case RIGHT:
-            MoveRight();
-            break;
-    }
-
-
+    // Move the grid
+    MoveGrid(direction);
     
     // Random Generate after move
     RandomGenerate();
 }
 
+// ----- Move Grid -----
+void GameManager::MoveGrid(Direction direction) {
+    // Rotate the grid
+    RotateGrid(direction);
+
+    int empty_cell_count = 0;
+    // Move the grid
+    for(int col = 0; col < GRID_NUM; col++) {
+        bool found_valid_top = false;
+
+        int column_processed[GRID_NUM] = {0};
+        int last_top_num = 0;
+        int row_proc_ind = 0;
+
+        // Check merging
+        for(int row = 0; row < GRID_NUM; row++) {
+            if(grid_[row][col] == 0) {
+                // Skip if the grid is empty
+                continue;
+            }
+
+            // Find the top number  
+            if(found_valid_top == false && grid_[row][col] != 0){
+                found_valid_top = true;
+                last_top_num = grid_[row][col];
+
+                column_processed[row_proc_ind] = last_top_num;
+
+                continue;
+            }
+
+            // cur num is not same as last top num
+            if(found_valid_top == true && last_top_num != grid_[row][col]){
+                last_top_num = grid_[row][col];
+
+                row_proc_ind++;
+                column_processed[row_proc_ind] = last_top_num;
+                
+                continue;
+            }
+                
+            // cur num is same as last top num
+            if(found_valid_top == true && last_top_num == grid_[row][col]){
+
+                column_processed[row_proc_ind] = grid_[row][col] + 1;
+                row_proc_ind++;
+
+                found_valid_top = false;
+            }
+        }
+
+        // Re fill the grid
+        for(int row = 0; row < GRID_NUM; row++) {
+            grid_[row][col] = column_processed[row];
+            if(grid_[row][col] == 0) {
+                empty_cell_count++;
+            }
+        }
+
+    }
+
+    // If there are no empty cells, check if the game is over
+    if(empty_cell_count == 0) {
+        is_game_over_ = true;
+    }
+
+    // Rotate back the grid
+    RotateGrid(direction, true);
+}
+
+void GameManager::RotateGrid(Direction direction, bool reverse) {
+    int temp_grid[GRID_NUM][GRID_NUM];
+
+    // Copy the grid to temp_grid
+    for(int i = 0; i < GRID_NUM; i++) {
+        for(int j = 0; j < GRID_NUM; j++) {
+            temp_grid[i][j] = grid_[i][j];
+        }
+    }
+
+    // Rotate the grid
+    if(direction == UP) {
+        for(int i = 0; i < GRID_NUM; i++) {
+            for(int j = 0; j < GRID_NUM; j++) {
+                grid_[i][j] = temp_grid[GRID_NUM - i - 1][GRID_NUM - j - 1];
+            }
+        }
+    }
+    else if(direction == LEFT && reverse == false ||
+            direction == RIGHT && reverse == true) {
+        for(int i = 0; i < GRID_NUM; i++) {
+            for(int j = 0; j < GRID_NUM; j++) {
+                grid_[i][j] = temp_grid[GRID_NUM - j - 1][i];
+            }
+        }
+    }
+    else if(direction == RIGHT && reverse == false ||
+            direction == LEFT && reverse == true) {
+        for(int i = 0; i < GRID_NUM; i++) {
+            for(int j = 0; j < GRID_NUM; j++) {
+                grid_[i][j] = temp_grid[j][GRID_NUM - i - 1];
+            }
+        }
+    }
+    else{
+        for(int i = 0; i < GRID_NUM; i++) {
+            for(int j = 0; j < GRID_NUM; j++) {
+                grid_[i][j] = temp_grid[i][j];
+            }
+        } 
+    }
+}
+
+// ----- Check Game Over -----
 bool GameManager::IsGameOver() {
-    return false; // TODO: Implement this function
-}
-
-
-// ----- Move the grid -----
-// TODO: Rotate and Movd Down!
-void GameManager::MoveUp() {
-    std::cout << "[GameManager] Move Up!" << std::endl;
-    for(int col = 0; col < GRID_NUM; col++) {
-        int num_processed = 0;
-        bool found_valid_top = false;
-
-        int number_processed[GRID_NUM] = {0};
-        int last_top_num = 0;
-        int p_row = 0;
-
-        // Check merging
-        for(int row = GRID_NUM - 1; row >= 0; row--) {
-            if(grid_[row][col] == 0) {
-                // Skip if the grid is empty
-                continue;
-            }
-
-            // Find the top number  
-            if(found_valid_top == false && grid_[row][col] != 0){
-                found_valid_top = true;
-                last_top_num = grid_[row][col];
-
-                number_processed[p_row] = last_top_num;
-
-                continue;
-            }
-
-            // cur num is not same as last top num
-            if(found_valid_top == true && last_top_num != grid_[row][col]){
-                last_top_num = grid_[row][col];
-
-                p_row++;
-                number_processed[p_row] = last_top_num;
-                
-                continue;
-            }
-                
-            // cur num is same as last top num
-            if(found_valid_top == true && last_top_num == grid_[row][col]){
-
-                number_processed[p_row] = grid_[row][col] + 1;
-                p_row++;
-
-                found_valid_top = false;
-            }
-        }
-
-        // Re fill the grid
-        for(int row = 0; row < GRID_NUM; row++) {
-            grid_[row][col] = number_processed[GRID_NUM-row-1];
-        }
-
-    }
-}
-
-void GameManager::MoveDown() {
-    std::cout << "[GameManager] Move Down!" << std::endl;
-    for(int col = 0; col < GRID_NUM; col++) {
-        int num_processed = 0;
-        bool found_valid_top = false;
-
-        int number_processed[GRID_NUM] = {0};
-        int last_top_num = 0;
-        int p_row = 0;
-
-        // Check merging
-        for(int row = 0; row < GRID_NUM; row++) {
-            if(grid_[row][col] == 0) {
-                // Skip if the grid is empty
-                continue;
-            }
-
-            // Find the top number  
-            if(found_valid_top == false && grid_[row][col] != 0){
-                found_valid_top = true;
-                last_top_num = grid_[row][col];
-
-                number_processed[p_row] = last_top_num;
-
-                continue;
-            }
-
-            // cur num is not same as last top num
-            if(found_valid_top == true && last_top_num != grid_[row][col]){
-                last_top_num = grid_[row][col];
-
-                p_row++;
-                number_processed[p_row] = last_top_num;
-                
-                continue;
-            }
-                
-            // cur num is same as last top num
-            if(found_valid_top == true && last_top_num == grid_[row][col]){
-
-                number_processed[p_row] = grid_[row][col] + 1;
-                p_row++;
-
-                found_valid_top = false;
-            }
-        }
-
-        // Re fill the grid
-        for(int row = 0; row < GRID_NUM; row++) {
-            grid_[row][col] = number_processed[row];
-        }
-
-    }
-}
-
-void GameManager::MoveLeft() {
-    std::cout << "[GameManager] Move Left!" << std::endl;
-    for(int row = 0; row < GRID_NUM; row++) {
-        int num_processed = 0;
-        bool found_valid_left = false;
-
-        int number_processed[GRID_NUM] = {0};
-        int last_left_num = 0;
-        int p_col = 0;
-
-        // Check merging
-        for(int col = 0; col < GRID_NUM; col++) {
-            if(grid_[row][col] == 0) {
-                // Skip if the grid is empty
-                continue;
-            }
-
-            // Find the left number  
-            if(found_valid_left == false && grid_[row][col] != 0){
-                found_valid_left = true;
-                last_left_num = grid_[row][col];
-
-                number_processed[p_col] = last_left_num;
-
-                continue;
-            }
-
-            // cur num is not same as last left num
-            if(found_valid_left == true && last_left_num != grid_[row][col]){
-                last_left_num = grid_[row][col];
-
-                p_col++;
-                number_processed[p_col] = last_left_num;
-                
-                continue;
-            }
-                
-            // cur num is same as last left num
-            if(found_valid_left == true && last_left_num == grid_[row][col]){
-                number_processed[p_col] = grid_[row][col] + 1;
-                p_col++;
-
-                found_valid_left = false;
-            }
-        }
-
-        // Re fill the grid
-        for(int col = 0; col < GRID_NUM; col++) {
-            grid_[row][col] = number_processed[col];
-        }
-    }
-}
-
-void GameManager::MoveRight() {
-    std::cout << "[GameManager] Move Right!" << std::endl;
-    for(int row = 0; row < GRID_NUM; row++) {
-        int num_processed = 0;
-        bool found_valid_right = false;
-
-        int number_processed[GRID_NUM] = {0};
-        int last_right_num = 0;
-        int p_col = 0;
-
-        // Check merging
-        for(int col = GRID_NUM - 1; col >= 0; col--) {
-            if(grid_[row][col] == 0) {
-                // Skip if the grid is empty
-                continue;
-            }
-
-            // Find the right number  
-            if(found_valid_right == false && grid_[row][col] != 0){
-                found_valid_right = true;
-                last_right_num = grid_[row][col];
-
-                number_processed[p_col] = last_right_num;
-
-                continue;
-            }
-
-            // cur num is not same as last right num
-            if(found_valid_right == true && last_right_num != grid_[row][col]){
-                last_right_num = grid_[row][col];
-
-                p_col++;
-                number_processed[p_col] = last_right_num;
-                
-                continue;
-            }
-                
-            // cur num is same as last right num
-            if(found_valid_right == true && last_right_num == grid_[row][col]){
-                number_processed[p_col] = grid_[row][col] + 1;
-                p_col++;
-
-                found_valid_right = false;
-            }
-        }
-
-        // Re fill the grid
-        for(int col = 0; col < GRID_NUM; col++) {
-            grid_[row][GRID_NUM - col - 1] = number_processed[col]; // Fill from the right
-        }
-    }
+    return is_game_over_;
 }
 
 // ----- Getter -----

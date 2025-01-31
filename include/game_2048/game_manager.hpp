@@ -16,6 +16,7 @@
 typedef enum {
     READY = 0,
     REQUESTED,
+    ENTERED,
     UP,
     DOWN,
     LEFT,
@@ -25,24 +26,20 @@ typedef enum {
 class GameManager {
 public:
     void InitializeGame();
+
     void UpdateGame(Direction direction);
-
     void RandomGenerate();
+    void MoveGrid(Direction direction);
+    void RotateGrid(Direction direction, bool reverse = false);
 
-    bool IsGameOver();
+     bool IsGameOver();
 
-
-    void MoveUp();
-    void MoveDown();
-    void MoveLeft();
-    void MoveRight();
-
-    
     void GetGrid(int grid[GRID_NUM][GRID_NUM]);
     void GetScore(int& score);
 
 private:
     int grid_[GRID_NUM][GRID_NUM];
+    bool is_game_over_{false};
 };
 
 #endif // GAME_2048_GAME_MANAGER_HPP
